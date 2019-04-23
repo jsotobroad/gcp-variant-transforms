@@ -172,7 +172,7 @@ class VariantToBigQuery(beam.PTransform):
     write_table_spec = bigquery.TableReference(
         projectId='broad-dsp-spec-ops',
         datasetId='gvcf_test',
-        tableId='pet_subsetted'
+        tableId='pet_subsetted_1000'
     )
 
     pet_bq_rows = pcoll | 'ConvertToBigQueryTableRow_PET' >> beam.ParDo(
@@ -185,7 +185,7 @@ class VariantToBigQuery(beam.PTransform):
     pet_bq_rows | 'Writing to BigQuery_PET' >> beam.io.WriteToBigQuery(
         write_table_spec,
         schema=table_schema,
-        write_disposition=beam.io.BigQueryDisposition.WRITE_TRUNCATE,
+        write_disposition=beam.io.BigQueryDisposition.WRITE_APPEND,
         create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED
     )
 
