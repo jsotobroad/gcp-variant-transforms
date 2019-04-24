@@ -412,6 +412,7 @@ def run(argv=None):
       _ = (variants[i] | 'VariantToBigQuery' + table_suffix >>
            variant_to_bigquery.VariantToBigQuery(
                table_name,
+               known_args.pet_table,
                header_fields,
                variant_merger,
                processed_variant_factory,

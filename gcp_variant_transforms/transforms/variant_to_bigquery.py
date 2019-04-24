@@ -77,6 +77,7 @@ class VariantToBigQuery(beam.PTransform):
   def __init__(
       self,
       output_table,  # type: str
+      pet_table,  # type: str
       header_fields,  # type: vcf_header_io.VcfHeader
       variant_merger=None,  # type: variant_merge_strategy.VariantMergeStrategy
       proc_var_factory=None,  # type: processed_variant.ProcessedVariantFactory
@@ -118,6 +119,7 @@ class VariantToBigQuery(beam.PTransform):
         to bigquery_util._DEFAULT_NULL_NUMERIC_VALUE_REPLACEMENT.
     """
     self._output_table = output_table
+    self._pet_table = pet_table
     self._header_fields = header_fields
     self._variant_merger = variant_merger
     self._proc_var_factory = proc_var_factory
@@ -172,7 +174,7 @@ class VariantToBigQuery(beam.PTransform):
     write_table_spec = bigquery.TableReference(
         projectId='broad-dsp-spec-ops',
         datasetId='gvcf_test',
-        tableId='pet_subsetted_1000'
+        tableId=self._pet_table
     )
 
     pet_bq_rows = pcoll | 'ConvertToBigQueryTableRow_PET' >> beam.ParDo(
