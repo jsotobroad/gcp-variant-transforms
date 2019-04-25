@@ -43,7 +43,6 @@ _WRITE_SHARDS_LIMIT = 1000
 PET_SAMPLE_COLUMN = 'sample'
 PET_POSITION_COLUMN = 'position'
 PET_STATE_COLUMN = 'state'
-PET_CHROMOSOME_COLUMN = 'chrom'
 
 
 @beam.typehints.with_input_types(processed_variant.ProcessedVariant)
@@ -78,6 +77,7 @@ class VariantToBigQuery(beam.PTransform):
       self,
       output_table,  # type: str
       pet_table,  # type: str
+      dataset,  # type: str
       header_fields,  # type: vcf_header_io.VcfHeader
       variant_merger=None,  # type: variant_merge_strategy.VariantMergeStrategy
       proc_var_factory=None,  # type: processed_variant.ProcessedVariantFactory
@@ -120,6 +120,7 @@ class VariantToBigQuery(beam.PTransform):
     """
     self._output_table = output_table
     self._pet_table = pet_table
+    self._dataset = dataset
     self._header_fields = header_fields
     self._variant_merger = variant_merger
     self._proc_var_factory = proc_var_factory
@@ -149,15 +150,9 @@ class VariantToBigQuery(beam.PTransform):
 
     state_field = bigquery.TableFieldSchema()
     state_field.name = PET_STATE_COLUMN
-    state_field.type = 'INTEGER'
+    state_field.type = 'STRING'
     state_field.mode = 'NULLABLE'
     table_schema.fields.append(state_field)
-
-    chromosome_field = bigquery.TableFieldSchema()
-    chromosome_field.name = PET_CHROMOSOME_COLUMN
-    chromosome_field.type = 'STRING'
-    chromosome_field.mode = 'NULLABLE'
-    table_schema.fields.append(chromosome_field)
 
     position_field = bigquery.TableFieldSchema()
     position_field.name = PET_POSITION_COLUMN
@@ -173,7 +168,7 @@ class VariantToBigQuery(beam.PTransform):
 
     write_table_spec = bigquery.TableReference(
         projectId='broad-dsp-spec-ops',
-        datasetId='gvcf_test',
+        datasetId=self._dataset,
         tableId=self._pet_table
     )
 

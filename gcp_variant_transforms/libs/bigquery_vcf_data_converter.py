@@ -62,16 +62,15 @@ _NUM_CALL_SAMPLES = 5
 # this many calls.
 _MIN_NUM_CALLS_FOR_ROW_SIZE_ESTIMATION = 100
 
-VARIANT_STATE = 1
-NV_MEDIUM_GQ_STATE = 2
-NV_LOW_GQ_STATE = 3
-STAR_STATE = 4
-MISSING_STATE = 5
+VARIANT_STATE = 'v'
+NV_MEDIUM_GQ_STATE = 'm'
+NV_LOW_GQ_STATE = 'l'
+STAR_STATE = 's'
+MISSING_STATE = 'n'
 
 PET_SAMPLE_COLUMN = 'sample'
 PET_POSITION_COLUMN = 'position'
 PET_STATE_COLUMN = 'state'
-PET_CHROMOSOME_COLUMN = 'chrom'
 
 class BigQueryRowGenerator(object):
   """Class to generate BigQuery row from a variant."""
@@ -115,9 +114,7 @@ class BigQueryRowGenerator(object):
     Raises:
       ValueError: If variant data is inconsistent or invalid.
     """
-
     sample_name = variant.calls[0].name
-    chrom = variant.reference_name
     start = variant.start
 
     if len(variant.alternate_data_list) > 1 and not write_to_pet:
@@ -153,16 +150,14 @@ class BigQueryRowGenerator(object):
             row[PET_POSITION_COLUMN] = variant.start
             row[PET_SAMPLE_COLUMN] = sample_name
             row[PET_STATE_COLUMN] = VARIANT_STATE
-            row[PET_CHROMOSOME_COLUMN] = chrom
             yield row
 
-            block_size = variant.end - start
+            block_size = variant.end - start + 1
             for offset in range(1, block_size):
                 row = {}
                 row[PET_POSITION_COLUMN] = start + offset
                 row[PET_SAMPLE_COLUMN] = sample_name
                 row[PET_STATE_COLUMN] = STAR_STATE
-                row[PET_CHROMOSOME_COLUMN] = chrom
                 yield row
 
         if len(variant.alternate_data_list) == 1:
@@ -175,13 +170,12 @@ class BigQueryRowGenerator(object):
                 non_ref_state = None
 
             if non_ref_state:
-                block_size = variant.end - start
+                block_size = variant.end - start + 1
                 for offset in range(0, block_size):
                     row = {}
                     row[PET_POSITION_COLUMN] = start + offset
                     row[PET_SAMPLE_COLUMN] = sample_name
                     row[PET_STATE_COLUMN] = non_ref_state
-                    row[PET_CHROMOSOME_COLUMN] = chrom
                     yield row
 
 

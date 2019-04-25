@@ -56,6 +56,7 @@ class FilterVariants(beam.PTransform):
   def _apply_filters(self, variant):
     if (self._is_valid_record(variant) and
         self._should_keep_reference_name(variant)):
+      variant.start = variant.start + 1
       yield variant
 
   def expand(self, pcoll):

@@ -148,6 +148,9 @@ class BigQueryWriteOptions(VariantTransformsOptions):
     parser.add_argument('--pet_table',
                         default='',
                         help='BigQuery table to store the results.')
+    parser.add_argument('--dataset',
+                        default='',
+                        help='BigQuery table to store the results.')
     parser.add_argument(
         '--split_alternate_allele_info_fields',
         type='bool', default=True, nargs='?', const=True,
