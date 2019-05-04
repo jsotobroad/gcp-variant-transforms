@@ -63,10 +63,8 @@ _NUM_CALL_SAMPLES = 5
 _MIN_NUM_CALLS_FOR_ROW_SIZE_ESTIMATION = 100
 
 VARIANT_STATE = 'v'
-NV_MEDIUM_GQ_STATE = 'm'
-NV_LOW_GQ_STATE = 'l'
 STAR_STATE = 's'
-MISSING_STATE = 'n'
+MISSING_STATE = 'm'
 
 PET_SAMPLE_COLUMN = 'sample'
 PET_POSITION_COLUMN = 'position'
@@ -162,12 +160,20 @@ class BigQueryRowGenerator(object):
 
         if len(variant.alternate_data_list) == 1:
             gq = variant.calls[0].info['GQ']
-            if gq < 20:
-                non_ref_state = NV_LOW_GQ_STATE
+            if gq < 10:
+                non_ref_state = "0"
+            elif gq < 20:
+                non_ref_state = "10"
+            elif gq < 30:
+                non_ref_state = "20"
+            elif gq < 40:
+                non_ref_state = "30"
+            elif gq < 50:
+                non_ref_state = "40"
             elif gq < 60:
-                non_ref_state = NV_MEDIUM_GQ_STATE
+                non_ref_state = "50"
             else:
-                non_ref_state = None
+                non_ref_state = "60"
 
             if non_ref_state:
                 block_size = variant.end - start + 1
